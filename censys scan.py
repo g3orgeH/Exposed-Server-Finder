@@ -3,6 +3,8 @@ from tkinter import messagebox
 import webbrowser
 from bs4 import BeautifulSoup
 import requests
+import re
+import pyperclip
 
 # Function to open a URL in the default web browser
 def open_url(url):
@@ -18,6 +20,13 @@ def check_url(url, label_ip):
             label_ip.config(fg="red")
     except requests.exceptions.RequestException as e:
         label_ip.config(fg="red")
+
+# Function to convert IP address to Stremio URL
+def ip_to_stremio_url(ip, port=12470):
+    ip = ip.split(':')[0]# Trim off the port bit
+    ip_dash = ip.replace('.', '-')
+    url = f"https://{ip_dash}.519b6502d940.stremio.rocks:{port}/"
+    return url
 
 # Load the HTML content from the file
 with open('scan11052025.txt', 'r') as file:
@@ -64,7 +73,10 @@ label.pack(pady=10)
 # Create buttons for each IP address with the specified ports and protocols
 for ip in ip_list:
     ip_address, port_protocol = ip.split(" ")
-    url = f"http://{ip_address}" if "http" in port_protocol else f"https://{ip_address}"
+    if "https" in port_protocol:
+        url = ip_to_stremio_url(ip_address)
+    else:
+        url = f"http://{ip_address}"
     
     frame = tk.Frame(root)
     frame.pack(pady=5)
